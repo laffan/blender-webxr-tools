@@ -36,7 +36,7 @@ if 'resources' in globals():
     importlib.reload(resources)
 
 # Import resources
-from .resources import (exportTheGLTF, connectBakeNodes, connectBSDF)
+from .resources import (exportTheGLTF, applyAllTransforms, connectBakeNodes, connectBSDF, rebakeAll)
 
 class SimplePanel(bpy.types.Panel):
     bl_idname = "VIEW3D_PT_simple_panel"
@@ -50,6 +50,8 @@ class SimplePanel(bpy.types.Panel):
         layout.operator("script.run_script1")
         layout.operator("script.run_script2")
         layout.operator("script.run_script3")
+        layout.operator("script.run_script4")
+        layout.operator("script.run_script5")
 
 class Button1(bpy.types.Operator):
     bl_idname = "script.run_script1"
@@ -77,17 +79,36 @@ class Button3(bpy.types.Operator):
         exportTheGLTF()
         return {'FINISHED'}
 
+class Button4(bpy.types.Operator):
+    bl_idname = "script.run_script4"
+    bl_label = "Rebake All"
+
+    def execute(self, context):
+        rebakeAll()
+        return {'FINISHED'}
+
+class Button5(bpy.types.Operator):
+    bl_idname = "script.run_script5"
+    bl_label = "Apply Transforms"
+
+    def execute(self, context):
+        applyAllTransforms()
+        return {'FINISHED'}
+
 def register():
     bpy.utils.register_class(SimplePanel)
     bpy.utils.register_class(Button1)
     bpy.utils.register_class(Button2)
     bpy.utils.register_class(Button3)
+    bpy.utils.register_class(Button4)
+    bpy.utils.register_class(Button5)
 
 def unregister():
     bpy.utils.unregister_class(SimplePanel)
     bpy.utils.unregister_class(Button1)
     bpy.utils.unregister_class(Button2)
     bpy.utils.unregister_class(Button3)
+    bpy.utils.unregister_class(Button5)
 
 if __name__ == "__main__":
     register()
