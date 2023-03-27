@@ -21,10 +21,10 @@ def connectBakeNodes(materials):
                         material.node_tree.links.new(color_output, surface_input)
 
 
+
 def connectBSDF(materials):
     for material in materials:
         if material.node_tree is not None:  # Check if the material has a node tree
-            material.node_tree.links.clear()
 
             principled_bsdf_node = None
             for node in material.node_tree.nodes:
@@ -38,8 +38,17 @@ def connectBSDF(materials):
                     bsdf_output = principled_bsdf_node.outputs.get("BSDF")
                     surface_input = material_output.inputs.get("Surface")
                     if bsdf_output is not None and surface_input is not None:
-                        material.node_tree.links.new(bsdf_output, surface_input)
+                        # First, check if the connection already exists
+                        existing_link = None
+                        for link in material.node_tree.links:
+                            if link.from_socket == bsdf_output and link.to_socket == surface_input:
+                                existing_link = link
+                                break
 
+                        # If the connection does not exist, create a new one
+                        if existing_link is None:
+                            material.node_tree.links.new(bsdf_output, surface_input)
+                                
 
 # get the directory of the blend file and export gltf
 def exportTheGLTF():
@@ -49,5 +58,7 @@ def exportTheGLTF():
     bpy.ops.export_scene.gltf(filepath=export_path,
                           check_existing=False,
                           export_format='GLTF_EMBEDDED',
-                          export_colors=False)
+                          export_colors=False,
+                          selected=False
+                          )
 
