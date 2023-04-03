@@ -15,8 +15,8 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-        "name": "WebXR Helpers",
-        "description": "Single line describing my awesome add-on.",
+        "name": "The Blender Belt",
+        "description": "Tools that help Nate make things in blenderland.",
         "author": "Nate Laffan",
         "version": (1, 0),
         "blender": (3, 4, 1),
@@ -25,7 +25,7 @@ bl_info = {
         "wiki_url": "http://my.wiki.url",
         "tracker_url": "http://my.bugtracker.url",
         "support": "COMMUNITY",
-        "category": "Render"
+        "category": "Tools"
         }
 
 import bpy
@@ -40,10 +40,10 @@ from .resources import (exportTheGLTF, applyAllTransforms, connectBakeNodes, con
 
 class SimplePanel(bpy.types.Panel):
     bl_idname = "VIEW3D_PT_simple_panel"
-    bl_label = "Web XR Tools"
+    bl_label = "Blender Belt"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "My Tools"
+    bl_category = "++ Belt ++"
 
     def draw(self, context):
         layout = self.layout
