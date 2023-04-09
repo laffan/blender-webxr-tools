@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-        "name": "The Belt Bndlt",
+        "name": "The Belt DJd Blender",
         "description": "Tools that help Nate make things in blenderland.",
         "author": "Nate Laffan",
         "version": (1, 0),
@@ -81,7 +81,6 @@ class SimplePanel(bpy.types.Panel):
         box.label(text="Nodes / Baking")
         box.operator("script.run_script1")
         box.operator("script.run_script2")
-        box.operator("script.run_script3")
         box.operator("script.run_script4")
 
         # New group with two lines
@@ -91,14 +90,14 @@ class SimplePanel(bpy.types.Panel):
         box.operator("script.run_script5")
         box.operator("script.run_script6")
 
-        # New group with two lines
         box = layout.box()
         box.label(text="Export & Copy JSX")
         
-        # Line 1: Text field and file browser button
         row = box.row()
         row.prop(context.scene, "filepath", text="")
+        row = box.row()
         # row.operator("export.select_folder", text="", icon="FILE_FOLDER")
+        row.prop(context.scene, "copy_jsx_only", text="Copy JSX only")
 
         # Line 2: Export buttons
         row = box.row()
@@ -111,7 +110,7 @@ class ExportGLB(bpy.types.Operator):
 
     def execute(self, context):
         target_directory = os.path.abspath(context.scene.filepath)
-        gltfjsxExport("GLB", target_directory )
+        gltfjsxExport("GLB", target_directory, context.scene.copy_jsx_only )
         return {'FINISHED'}
 
 class ExportGLTF(bpy.types.Operator):
@@ -120,7 +119,7 @@ class ExportGLTF(bpy.types.Operator):
 
     def execute(self, context):
         target_directory = os.path.abspath(context.scene.filepath)
-        gltfjsxExport("GLTF", target_directory )
+        gltfjsxExport("GLTF", target_directory, context.scene.copy_jsx_only )
         return {'FINISHED'}
 
 
@@ -166,6 +165,7 @@ class Button6(bpy.types.Operator):
         return {'FINISHED'}
 
 def register():
+    bpy.types.Scene.copy_jsx_only = bpy.props.BoolProperty(default=False)
     bpy.utils.register_class(SimplePanel)
     bpy.utils.register_class(Button1)
     bpy.utils.register_class(Button2)

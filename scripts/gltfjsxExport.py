@@ -2,6 +2,7 @@ import bpy
 import os
 import glob
 import subprocess
+import re
 
 
 root_dir = "/Users/nate"
@@ -25,7 +26,7 @@ def exportGLB(export_path):
     return export_path
 
 
-def gltfjsxExport(file_type, target_path):
+def gltfjsxExport(file_type, target_path, copy_jsx_only):
 
     file_type_lower = file_type.lower()  # Convert file_type to lowercase
 
@@ -77,6 +78,13 @@ def gltfjsxExport(file_type, target_path):
     
     # Copy the contents of this file to the clipboard and delete the .jsx file.
     with open(jsx_filepath, "r") as jsx_file:
-        bpy.context.window_manager.clipboard = jsx_file.read()
+        contents = jsx_file.read()
+        if copy_jsx_only == True:
+            print("MISTERT")
+            match = re.search(r'return\s*\(([^()]*)\)', contents)
+            if match:
+                contents = match.group(1)
+        bpy.context.window_manager.clipboard = contents
 
+        
     os.remove(jsx_filepath)
