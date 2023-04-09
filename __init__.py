@@ -31,12 +31,33 @@ bl_info = {
 import bpy
 import importlib
 
-# Prevent python from caching the resources
-if 'resources' in globals():
-    importlib.reload(resources)
+# Import functions and reload them so they aren't cached by mistake.
 
-# Import resources
-from .resources import (exportTheGLTF, applyAllTransforms, connectBakeNodes, connectBSDF, rebakeAll)
+def import_and_reload_functions(function_names):
+    imported_functions = {}
+    
+    for function_name in function_names:
+        module_name = f"scripts.{function_name}"
+        if module_name in globals():
+            importlib.reload(globals()[module_name])
+        else:
+            globals()[module_name] = importlib.import_module(f".{module_name}", __package__)
+        
+        imported_functions[function_name] = getattr(globals()[module_name], function_name)
+    
+    return imported_functions
+
+# List of function names matching their file names
+function_names = ["connectBakeNodes", "exportTheGLTF", "applyAllTransforms", "connectBSDF", "rebakeAll"]
+
+# Import and reload functions
+imported_functions = import_and_reload_functions(function_names)
+
+connectBakeNodes = imported_functions["connectBakeNodes"]
+exportTheGLTF = imported_functions["exportTheGLTF"]
+applyAllTransforms = imported_functions["applyAllTransforms"]
+connectBSDF = imported_functions["connectBSDF"]
+rebakeAll = imported_functions["rebakeAll"]
 
 class SimplePanel(bpy.types.Panel):
     bl_idname = "VIEW3D_PT_simple_panel"
