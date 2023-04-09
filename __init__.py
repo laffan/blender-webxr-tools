@@ -52,7 +52,7 @@ def import_and_reload_functions(function_names):
     return imported_functions
 
 # List of function names matching their file names
-function_names = ["connectBakeNodes", "applyAllTransforms", "connectBSDF", "rebakeAll", "gltfjsxExport"]
+function_names = ["connectBakeNodes", "applyAllTransforms", "connectBSDF", "rebakeAll", "gltfjsxExport", "setOriginToGeometry"]
 
 # Import and reload functions
 imported_functions = import_and_reload_functions(function_names)
@@ -62,6 +62,7 @@ applyAllTransforms = imported_functions["applyAllTransforms"]
 connectBSDF = imported_functions["connectBSDF"]
 rebakeAll = imported_functions["rebakeAll"]
 gltfjsxExport = imported_functions["gltfjsxExport"]
+setOriginToGeometry = imported_functions["setOriginToGeometry"]
 
 class SimplePanel(bpy.types.Panel):
     bl_idname = "VIEW3D_PT_simple_panel"
@@ -77,12 +78,18 @@ class SimplePanel(bpy.types.Panel):
 
         # Wrap existing buttons in a group
         box = layout.box()
-        box.label(text="Tools")
+        box.label(text="Nodes / Baking")
         box.operator("script.run_script1")
         box.operator("script.run_script2")
         box.operator("script.run_script3")
         box.operator("script.run_script4")
+
+        # New group with two lines
+        box = layout.box()
+        box.label(text="Transforms")
+
         box.operator("script.run_script5")
+        box.operator("script.run_script6")
 
         # New group with two lines
         box = layout.box()
@@ -96,7 +103,7 @@ class SimplePanel(bpy.types.Panel):
         # Line 2: Export buttons
         row = box.row()
         row.operator("export.export_glb", text="GLB")
-        row.operator("export.export_gltf", text="GLTF")
+        row.operator("export.export_gltf", text="GLTF (Transformed)")
 
 class ExportGLB(bpy.types.Operator):
     bl_idname = "export.export_glb"
@@ -135,17 +142,9 @@ class Button2(bpy.types.Operator):
         connectBSDF(materials)
         return {'FINISHED'}
 
-class Button3(bpy.types.Operator):
-    bl_idname = "script.run_script3"
-    bl_label = "Export GLTF"
-
-    def execute(self, context):
-        exportTheGLTF()
-        return {'FINISHED'}
-
 class Button4(bpy.types.Operator):
     bl_idname = "script.run_script4"
-    bl_label = "Rebake All"
+    bl_label = "Rebake All (TBD)"
 
     def execute(self, context):
         rebakeAll()
@@ -153,19 +152,26 @@ class Button4(bpy.types.Operator):
 
 class Button5(bpy.types.Operator):
     bl_idname = "script.run_script5"
-    bl_label = "Apply Transforms"
+    bl_label = "Apply All Transforms"
 
     def execute(self, context):
         applyAllTransforms()
+        return {'FINISHED'}
+class Button6(bpy.types.Operator):
+    bl_idname = "script.run_script6"
+    bl_label = "All Origins to Geometry"
+
+    def execute(self, context):
+        setOriginToGeometry()
         return {'FINISHED'}
 
 def register():
     bpy.utils.register_class(SimplePanel)
     bpy.utils.register_class(Button1)
     bpy.utils.register_class(Button2)
-    bpy.utils.register_class(Button3)
     bpy.utils.register_class(Button4)
     bpy.utils.register_class(Button5)
+    bpy.utils.register_class(Button6)
     bpy.utils.register_class(ExportGLB)
     bpy.utils.register_class(ExportGLTF)
 
@@ -173,9 +179,9 @@ def unregister():
     bpy.utils.unregister_class(SimplePanel)
     bpy.utils.unregister_class(Button1)
     bpy.utils.unregister_class(Button2)
-    bpy.utils.unregister_class(Button3)
     bpy.utils.unregister_class(Button4)
     bpy.utils.unregister_class(Button5)
+    bpy.utils.unregister_class(Button6)
     bpy.utils.unregister_class(ExportGLB)
     bpy.utils.unregister_class(ExportGLTF)
 
