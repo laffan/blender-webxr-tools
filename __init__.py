@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-        "name": "The Blender Belt",
+        "name": "The Belt Bndlt",
         "description": "Tools that help Nate make things in blenderland.",
         "author": "Nate Laffan",
         "version": (1, 0),
@@ -30,6 +30,10 @@ bl_info = {
 
 import bpy
 import importlib
+import os
+from bpy.props import StringProperty
+from bpy_extras.io_utils import ImportHelper
+
 
 # Import functions and reload them so they aren't cached by mistake.
 
@@ -48,16 +52,16 @@ def import_and_reload_functions(function_names):
     return imported_functions
 
 # List of function names matching their file names
-function_names = ["connectBakeNodes", "exportTheGLTF", "applyAllTransforms", "connectBSDF", "rebakeAll"]
+function_names = ["connectBakeNodes", "applyAllTransforms", "connectBSDF", "rebakeAll", "gltfjsxExport"]
 
 # Import and reload functions
 imported_functions = import_and_reload_functions(function_names)
 
 connectBakeNodes = imported_functions["connectBakeNodes"]
-exportTheGLTF = imported_functions["exportTheGLTF"]
 applyAllTransforms = imported_functions["applyAllTransforms"]
 connectBSDF = imported_functions["connectBSDF"]
 rebakeAll = imported_functions["rebakeAll"]
+gltfjsxExport = imported_functions["gltfjsxExport"]
 
 class SimplePanel(bpy.types.Panel):
     bl_idname = "VIEW3D_PT_simple_panel"
@@ -66,13 +70,52 @@ class SimplePanel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "++ Belt ++"
 
+    bpy.types.Scene.filepath = StringProperty(name="File Path", subtype="FILE_PATH")
+
     def draw(self, context):
         layout = self.layout
-        layout.operator("script.run_script1")
-        layout.operator("script.run_script2")
-        layout.operator("script.run_script3")
-        layout.operator("script.run_script4")
-        layout.operator("script.run_script5")
+
+        # Wrap existing buttons in a group
+        box = layout.box()
+        box.label(text="Tools")
+        box.operator("script.run_script1")
+        box.operator("script.run_script2")
+        box.operator("script.run_script3")
+        box.operator("script.run_script4")
+        box.operator("script.run_script5")
+
+        # New group with two lines
+        box = layout.box()
+        box.label(text="Export & Copy JSX")
+        
+        # Line 1: Text field and file browser button
+        row = box.row()
+        row.prop(context.scene, "filepath", text="")
+        # row.operator("export.select_folder", text="", icon="FILE_FOLDER")
+
+        # Line 2: Export buttons
+        row = box.row()
+        row.operator("export.export_glb", text="GLB")
+        row.operator("export.export_gltf", text="GLTF")
+
+class ExportGLB(bpy.types.Operator):
+    bl_idname = "export.export_glb"
+    bl_label = "Export GLB"
+
+    def execute(self, context):
+        target_directory = os.path.abspath(context.scene.filepath)
+        gltfjsxExport("GLB", target_directory )
+        return {'FINISHED'}
+
+class ExportGLTF(bpy.types.Operator):
+    bl_idname = "export.export_gltf"
+    bl_label = "Export GLTF"
+
+    def execute(self, context):
+        target_directory = os.path.abspath(context.scene.filepath)
+        gltfjsxExport("GLTF", target_directory )
+        return {'FINISHED'}
+
 
 class Button1(bpy.types.Operator):
     bl_idname = "script.run_script1"
@@ -123,13 +166,19 @@ def register():
     bpy.utils.register_class(Button3)
     bpy.utils.register_class(Button4)
     bpy.utils.register_class(Button5)
+    bpy.utils.register_class(ExportGLB)
+    bpy.utils.register_class(ExportGLTF)
 
 def unregister():
     bpy.utils.unregister_class(SimplePanel)
     bpy.utils.unregister_class(Button1)
     bpy.utils.unregister_class(Button2)
     bpy.utils.unregister_class(Button3)
+    bpy.utils.unregister_class(Button4)
     bpy.utils.unregister_class(Button5)
+    bpy.utils.unregister_class(ExportGLB)
+    bpy.utils.unregister_class(ExportGLTF)
+
 
 if __name__ == "__main__":
     register()
