@@ -4,8 +4,9 @@ import glob
 import subprocess
 import re
 
-
-root_dir = "/Users/nate"
+# Get user dir
+# root_dir = "/Users/nate"
+root_dir = os.path.expanduser("~")
 
 def exportGLTF(export_path):
     bpy.ops.export_scene.gltf(filepath=export_path,
@@ -80,7 +81,6 @@ def gltfjsxExport(file_type, target_path, copy_jsx_only):
     with open(jsx_filepath, "r") as jsx_file:
         contents = jsx_file.read()
         if copy_jsx_only == True:
-            print("MISTERT")
             match = re.search(r'return\s*\(([^()]*)\)', contents)
             if match:
                 contents = match.group(1)

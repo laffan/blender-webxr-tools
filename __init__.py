@@ -15,7 +15,7 @@
 # along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 bl_info = {
-        "name": "The Belt DJd Blender",
+        "name": "The WebXR Belt",
         "description": "Tools that help Nate make things in blenderland.",
         "author": "Nate Laffan",
         "version": (1, 0),
