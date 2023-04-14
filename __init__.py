@@ -31,7 +31,7 @@ bl_info = {
 import bpy
 import importlib
 import os
-from bpy.props import StringProperty
+from bpy.props import StringProperty, BoolProperty
 from bpy_extras.io_utils import ImportHelper
 
 
@@ -71,7 +71,20 @@ class SimplePanel(bpy.types.Panel):
     bl_region_type = "UI"
     bl_category = "++ Belt ++"
 
-    bpy.types.Scene.filepath = StringProperty(name="File Path", subtype="FILE_PATH")
+    bpy.types.Scene.model_path = StringProperty(name="Model File Path", subtype="FILE_PATH")
+
+    bpy.types.Scene.jsx_path = StringProperty(name="JSX File Path", subtype="FILE_PATH")
+
+    bpy.types.Scene.copy_jsx_only = BoolProperty(
+        name="Copy JSX Only",
+        description="Only copy the JSX.",
+        default=False
+    )
+    bpy.types.Scene.replace_existing = BoolProperty(
+        name="Replace Existing",
+        description="Replace existing JSX file",
+        default=False
+    )
 
     def draw(self, context):
         layout = self.layout
@@ -94,10 +107,13 @@ class SimplePanel(bpy.types.Panel):
         box.label(text="Export & Copy JSX")
         
         row = box.row()
-        row.prop(context.scene, "filepath", text="")
+        row.prop(context.scene, "model_path", text="Model Path")
         row = box.row()
-        # row.operator("export.select_folder", text="", icon="FILE_FOLDER")
+        row.prop(context.scene, "jsx_path", text="JSX Path")
+        row = box.row()
         row.prop(context.scene, "copy_jsx_only", text="Copy JSX only")
+        row = box.row()
+        row.prop(context.scene, "replace_existing", text="Replace JSX")
 
         # Line 2: Export buttons
         row = box.row()
@@ -109,8 +125,9 @@ class ExportGLB(bpy.types.Operator):
     bl_label = "Export GLB"
 
     def execute(self, context):
-        target_directory = os.path.abspath(context.scene.filepath)
-        gltfjsxExport("GLB", target_directory, context.scene.copy_jsx_only )
+        model_directory = os.path.abspath(context.scene.model_path)
+        jsx_directory = os.path.abspath(context.scene.jsx_path)
+        gltfjsxExport("GLB", model_directory, jsx_directory, context.scene.copy_jsx_only, context.scene.replace_existing )
         return {'FINISHED'}
 
 class ExportGLTF(bpy.types.Operator):
@@ -118,8 +135,9 @@ class ExportGLTF(bpy.types.Operator):
     bl_label = "Export GLTF"
 
     def execute(self, context):
-        target_directory = os.path.abspath(context.scene.filepath)
-        gltfjsxExport("GLTF", target_directory, context.scene.copy_jsx_only )
+        model_directory = os.path.abspath(context.scene.model_path)
+        jsx_directory = os.path.abspath(context.scene.jsx_path)
+        gltfjsxExport("GLTF", model_directory, jsx_directory, context.scene.copy_jsx_only, context.scene.replace_existing  )
         return {'FINISHED'}
 
 
