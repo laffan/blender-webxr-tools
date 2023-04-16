@@ -27,7 +27,7 @@ def exportGLB(model_export_path):
     return model_export_path
 
 
-def gltfjsxExport(file_type, model_directory, jsx_directory, copy_jsx_only, replace_existing ):
+def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
 
     file_type_lower = file_type.lower()  # Convert file_type to lowercase
 
@@ -75,7 +75,7 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, copy_jsx_only, repl
 
 
 
-    # 3. Capitalize the initial name to get the jsx that is output by gltfjsx
+    # Capitalize the initial name to get the jsx that is output by gltfjsx
     filename_without_ext = os.path.splitext(filename)[0]
     capitalized_filename = filename_without_ext[0].upper() + filename_without_ext[1:]
     temp_jsx_filepath = os.path.join(directory, capitalized_filename + ".jsx")
@@ -89,11 +89,36 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, copy_jsx_only, repl
     jsx_directory_parts = jsx_directory.split('/')
     existing_jsx_filepath = os.path.join(root_dir, *jsx_directory_parts, camelFileName)
 
-    # existing_jsx_filepath = os.path.join(jsx_directory, camelFileName + ".jsx")
+    def update_attributes_only(existing_jsx, temp_jsx):
+        updated_jsx = existing_jsx
 
+        def parse_meshes_and_groups(jsx):
+            regex_pattern = r'(<(mesh|group)(?:\s[^>]*)*>)'
+            return re.findall(regex_pattern, jsx)
+
+        existing_tags = parse_meshes_and_groups(existing_jsx)
+        temp_tags = parse_meshes_and_groups(temp_jsx)
+
+        for idx, (temp_full_tag, temp_tag) in enumerate(temp_tags):
+            temp_attrs = temp_full_tag[len(temp_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
+            if idx < len(existing_tags):
+                existing_full_tag, existing_tag = existing_tags[idx]
+                existing_attrs = existing_full_tag[len(existing_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
+
+                if temp_tag == existing_tag:
+                    for attr_name in ["geometry", "material", "position"]:
+                        temp_attr_regex = r'({}\s*=\s*\{{[^\}}]*\}})'.format(attr_name)
+                        temp_attr = next((attr for attr in re.findall(temp_attr_regex, temp_attrs) if attr.startswith(attr_name)), None)
+                        existing_attr = next((attr for attr in re.findall(temp_attr_regex, existing_attrs) if attr.startswith(attr_name)), None)
+
+                        if temp_attr and existing_attr and temp_attr != existing_attr:
+                            updated_jsx = updated_jsx.replace(existing_attr, temp_attr)
+
+        return updated_jsx
+    
     if os.path.exists(existing_jsx_filepath):
-        if replace_existing:
-            # 5. Update ONLY the return statement of the existing file
+        # Update ONLY the return statement of the existing file
+        if jsxUpdateType == "ONLYRETURN":
             with open(temp_jsx_filepath, "r") as temp_jsx_file:
                 temp_contents = temp_jsx_file.read()
                 temp_match = re.search(r'return\s*\(([^()]*)\)', temp_contents)
@@ -107,6 +132,20 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, copy_jsx_only, repl
                     with open(existing_jsx_filepath, "w") as existing_jsx_file:
                         existing_jsx_file.write(updated_contents)
 
+        elif jsxUpdateType == "ONLYATTRIBUTES":
+            print("ONLYATTRIBUTES")
+            with open(temp_jsx_filepath, "r") as temp_jsx_file:
+                temp_contents = temp_jsx_file.read()
+                        
+                with open(existing_jsx_filepath, "r") as existing_jsx_file:
+                    existing_contents = existing_jsx_file.read()
+
+                    updated_contents = update_attributes_only(existing_contents, temp_contents)
+                
+                with open(existing_jsx_filepath, "w") as existing_jsx_file:
+                    existing_jsx_file.write(updated_contents)
+
+                    
         else:
             # 4. Delete the temp_jsx_filepath
             os.remove(temp_jsx_filepath)
