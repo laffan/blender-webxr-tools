@@ -100,13 +100,16 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
         existing_tags = parse_meshes_and_groups(existing_jsx)
         temp_tags = parse_meshes_and_groups(temp_jsx)
 
-        for idx, (temp_full_tag, temp_tag) in enumerate(temp_tags):
+        existing_idx = 0
+        for temp_full_tag, temp_tag in temp_tags:
             temp_attrs = temp_full_tag[len(temp_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
-            if idx < len(existing_tags):
-                existing_full_tag, existing_tag = existing_tags[idx]
-                existing_attrs = existing_full_tag[len(existing_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
 
-                if temp_tag == existing_tag:
+            while existing_idx < len(existing_tags):
+                existing_full_tag, existing_tag = existing_tags[existing_idx]
+                existing_attrs = existing_full_tag[len(existing_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
+                existing_idx += 1
+
+                if temp_tag == existing_tag or (temp_tag == "group" and not temp_attrs.strip() and existing_tag == "group"):
                     for attr_name in ["geometry", "material", "position"]:
                         temp_attr_regex = r'({}\s*=\s*\{{[^\}}]*\}})'.format(attr_name)
                         temp_attr = next((attr for attr in re.findall(temp_attr_regex, temp_attrs) if attr.startswith(attr_name)), None)
@@ -114,8 +117,11 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
 
                         if temp_attr and existing_attr and temp_attr != existing_attr:
                             updated_jsx = updated_jsx.replace(existing_attr, temp_attr)
+                    break
 
         return updated_jsx
+
+
     
     def copy_to_clipboard(text):
         if platform.system() == "Windows":
