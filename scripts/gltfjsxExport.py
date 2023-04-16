@@ -1,5 +1,6 @@
 import bpy
 import os
+import platform
 import glob
 import subprocess
 import re
@@ -116,21 +117,31 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
 
         return updated_jsx
     
+    def copy_to_clipboard(text):
+        if platform.system() == "Windows":
+            os.system(f'echo {text.strip()} | clip')
+        else:
+            os.system(f'echo "{text.strip()}" | pbcopy')
+
+
     if os.path.exists(existing_jsx_filepath):
-        # Update ONLY the return statement of the existing file
-        if jsxUpdateType == "ONLYRETURN":
+        # Update ONLY the return statement of the existing file          
+        if jsxUpdateType == "ONLYRETURN" or jsxUpdateType == "COPY":
             with open(temp_jsx_filepath, "r") as temp_jsx_file:
                 temp_contents = temp_jsx_file.read()
                 temp_match = re.search(r'return\s*\(([^()]*)\)', temp_contents)
                 if temp_match:
                     temp_return_statement = temp_match.group(1)
-                    
+
                     with open(existing_jsx_filepath, "r") as existing_jsx_file:
                         existing_contents = existing_jsx_file.read()
                         updated_contents = re.sub(r'return\s*\(([^()]*)\)', f'return ({temp_return_statement})', existing_contents)
 
-                    with open(existing_jsx_filepath, "w") as existing_jsx_file:
-                        existing_jsx_file.write(updated_contents)
+                    if jsxUpdateType == "COPY":
+                        copy_to_clipboard(temp_return_statement)
+                    else:
+                        with open(existing_jsx_filepath, "w") as existing_jsx_file:
+                            existing_jsx_file.write(updated_contents)
 
         elif jsxUpdateType == "ONLYATTRIBUTES":
             print("ONLYATTRIBUTES")

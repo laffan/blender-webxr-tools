@@ -80,9 +80,10 @@ class SimplePanel(bpy.types.Panel):
         name="JSX Update Type",
         description="Choose an option",
         items=[
-            ("FILE", "File", "Overwrite JSX file"),
-            ("ONLYRETURN", "Return", "Overwrite only return statement. (Maintain import path.)"),
-            ("ONLYATTRIBUTES", "Attributes", "Only overwrite attributes. (Materials and position. May break if new meshes exist.)"),
+            ("COPY", "Copy", "Copy JSX only. Don't change file."),
+            ("FILE", "File", "Overwrite JSX file entirely."),
+            ("ONLYRETURN", "Return", "Overwrite only return statement."),
+            ("ONLYATTRIBUTES", "Attributes", "Overwrite only attribute changes. (May break if new meshes exist.)"),
         ],
         default="FILE",
     )
