@@ -37,13 +37,12 @@ def rebakeAll():
                     if bake_node is not None:
                         # Set the image texture node as active
                         material.node_tree.nodes.active = bake_node
-
                         # Update the progress bar
                         wm.progress_update(index)
                         progress_message = f"Baking mesh: {obj.name}"
-                        # Update the progress bar
+                        print(progress_message)
                         progress += 1
-                        wm.progress_update(progress)
+
 
                         # Bake the texture
                         bpy.ops.object.bake(type='COMBINED')

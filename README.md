@@ -5,4 +5,13 @@ Some tools to help.
 Started with the :
 https://github.com/lunadigital/blender-addon-template
 
-TODO : Make "root_dir" assignment a plugin parameter rather than be hard-coded.
+
+## Notes
+
+For macOS users, all exports scripts require blender to be opened via the command line.
+
+
+## Known Bugs
+
+- If there is anything that isn't XML (like a conditional, say) RETURNMODE will misfire and not change anything, but save the JSX file to the model dir.
+- 

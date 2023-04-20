@@ -4,6 +4,7 @@ import platform
 import glob
 import subprocess
 import re
+import time
 
 # Get user dir
 # root_dir = "/Users/nate"
@@ -61,7 +62,10 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
     else:
         raise ValueError("Invalid file type. Must be 'GLB' or 'GLTF'.")
 
-    subprocess.run(command, shell=True, cwd=directory, check=True)
+    subprocess.run(command, shell=True, cwd=directory, stderr=subprocess.PIPE, stdout=subprocess.PIPE, text=True)
+    
+    # Avoid possible race condition
+    time.sleep(0.5)  # Wait for .5 second
 
     # If using a GLTF file that has been transformed, remove the original
     # and rename the glb file.
@@ -142,6 +146,7 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
                     with open(existing_jsx_filepath, "r") as existing_jsx_file:
                         existing_contents = existing_jsx_file.read()
                         updated_contents = re.sub(r'return\s*\(([^()]*)\)', f'return ({temp_return_statement})', existing_contents)
+                        # print(existing_contents,updated_contents )
 
                     if jsxUpdateType == "COPY":
                         copy_to_clipboard(temp_return_statement)
