@@ -113,6 +113,10 @@ def gltfjsxExport(file_type, model_directory, jsx_directory, jsxUpdateType ):
                 existing_attrs = existing_full_tag[len(existing_tag) + 1:-1]  # Extract attributes string without the tag name and angle brackets
                 existing_idx += 1
 
+                # Check if the existing tag has the keepAttributes property
+                if "keepAttributes" in existing_attrs:
+                    continue
+
                 if temp_tag == existing_tag or (temp_tag == "group" and not temp_attrs.strip() and existing_tag == "group"):
                     for attr_name in ["geometry", "material", "position"]:
                         temp_attr_regex = r'({}\s*=\s*\{{[^\}}]*\}})'.format(attr_name)

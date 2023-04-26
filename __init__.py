@@ -52,7 +52,7 @@ def import_and_reload_functions(function_names):
     return imported_functions
 
 # List of function names matching their file names
-function_names = ["connectBakeNodes", "applyAllTransforms", "connectBSDF", "rebakeAll", "gltfjsxExport", "setOriginToGeometry"]
+function_names = ["connectBakeNodes", "applyAllTransforms", "connectBSDF", "rebake", "gltfjsxExport", "setOriginToGeometry"]
 
 # Import and reload functions
 imported_functions = import_and_reload_functions(function_names)
@@ -60,7 +60,7 @@ imported_functions = import_and_reload_functions(function_names)
 connectBakeNodes = imported_functions["connectBakeNodes"]
 applyAllTransforms = imported_functions["applyAllTransforms"]
 connectBSDF = imported_functions["connectBSDF"]
-rebakeAll = imported_functions["rebakeAll"]
+rebake = imported_functions["rebake"]
 gltfjsxExport = imported_functions["gltfjsxExport"]
 setOriginToGeometry = imported_functions["setOriginToGeometry"]
 
@@ -75,7 +75,6 @@ class SimplePanel(bpy.types.Panel):
 
     bpy.types.Scene.jsx_path = StringProperty(name="JSX File Path", subtype="FILE_PATH")
 
-    # Define the EnumProperty
     bpy.types.Scene.jsxUpdateType = bpy.props.EnumProperty(
         name="JSX Update Type",
         description="Choose an option",
@@ -87,6 +86,15 @@ class SimplePanel(bpy.types.Panel):
         ],
         default="FILE",
     )
+    bpy.types.Scene.rebakeType = bpy.props.EnumProperty(
+        name="Rebake Type",
+        description="Choose an option",
+        items=[
+            ("ALL", "All", "Rebake all materials with Bake node."),
+            ("SELECTED", "Selected", "Rebake selected materials with Bake node."),
+        ],
+        default="ALL",
+    )
 
 
     def draw(self, context):
@@ -94,9 +102,14 @@ class SimplePanel(bpy.types.Panel):
 
         # Wrap existing buttons in a group
         box = layout.box()
-        box.label(text="Nodes / Baking")
+        box.label(text="Texture Mode")
         box.operator("script.run_script1")
         box.operator("script.run_script2")
+        
+        box = layout.box()
+        box.label(text="Rebake")
+        row = box.row()
+        row.prop(context.scene, "rebakeType", expand=True)
         box.operator("script.run_script4")
 
         # New group with two lines
@@ -164,10 +177,10 @@ class Button2(bpy.types.Operator):
 
 class Button4(bpy.types.Operator):
     bl_idname = "script.run_script4"
-    bl_label = "Rebake All (TBD)"
+    bl_label = "Rebake"
 
     def execute(self, context):
-        rebakeAll()
+        rebake(context.scene.rebakeType)
         return {'FINISHED'}
 
 class Button5(bpy.types.Operator):

@@ -2,19 +2,23 @@ import bpy
 import os
 from .connectBSDF import connectBSDF
 
-def rebakeAll():
+def rebake(rebakeType):
     materials = bpy.data.materials
     connectBSDF(materials)
     # Deselect all objects
-    bpy.ops.object.select_all(action='DESELECT')
 
-    mesh_objects = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+    if rebakeType == "ALL":
+        bpy.ops.object.select_all(action='DESELECT')
+        mesh_objects = [obj for obj in bpy.context.scene.objects if obj.type == 'MESH']
+    elif rebakeType == "SELECTED":
+        mesh_objects = [obj for obj in bpy.context.selected_objects if obj.type == 'MESH']
+    else:
+        raise ValueError("Invalid rebakeType. It should be either 'ALL' or 'SELECTED'.")
 
     # Initialize the progress bar
     wm = bpy.context.window_manager
     progress = 0
     wm.progress_begin(0, len(mesh_objects))
-
 
     # Loop through each object in the scene
     for index, obj in enumerate(mesh_objects):
@@ -43,10 +47,16 @@ def rebakeAll():
                         print(progress_message)
                         progress += 1
 
-
                         # Bake the texture
                         bpy.ops.object.bake(type='COMBINED')
-
+                        
+                        # Pack the image
+                        bake_node.image.pack()
+                        
+                        # Save the packed image in the blend file if needed
+                        if bpy.data.is_saved:
+                            bpy.ops.wm.save_mainfile()
+                        
             # Deselect the object after baking
             obj.select_set(False)
             wm.progress_end()
