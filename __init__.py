@@ -1,5 +1,5 @@
 bl_info = {
-        "name": "The WebXR Belt",
+        "name": "Blender WebXR Tools",
         "description": "Tools to help the transition from blender to web.",
         "author": "Nate Laffan",
         "version": (1, 0),
@@ -49,11 +49,11 @@ gltfjsxExport = imported_functions["gltfjsxExport"]
 setOriginToGeometry = imported_functions["setOriginToGeometry"]
 
 class SimplePanel(bpy.types.Panel):
-    bl_idname = "VIEW3D_PT_simple_panel"
-    bl_label = "Blender Belt"
+    bl_idname = "VIEW3D_PT_simple_panel_WebXRTools"
     bl_space_type = "VIEW_3D"
     bl_region_type = "UI"
-    bl_category = "++ Belt ++"
+    bl_label = "WebXR Tools"
+    bl_category = "Nate's Blender Tools"
 
     bpy.types.Scene.model_path = StringProperty(name="Model File Path", subtype="FILE_PATH")
 
